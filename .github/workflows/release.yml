@@ -39,7 +39,7 @@ jobs:
         with:
           push: true
           tags: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-  
+
   release-binaries:
     runs-on: ubuntu-latest
     steps:
@@ -62,4 +62,4 @@ jobs:
         with:
           files: |
             target/release/minimal-template-node
-            target/release/wbuild/minimal-template-runtime/minimal_template_runtime.compact.compressed.wasm
+            target/release/wbuild/node-minimal-asset-runtime/node-minimal-asset-runtime.compact.compressed.wasm

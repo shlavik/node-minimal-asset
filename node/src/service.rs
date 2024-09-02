@@ -16,7 +16,7 @@
 // limitations under the License.
 
 use futures::FutureExt;
-use minimal_template_runtime::{interface::OpaqueBlock as Block, RuntimeApi};
+use node_minimal_asset_runtime::{interface::OpaqueBlock as Block, RuntimeApi};
 use sc_client_api::backend::Backend;
 use sc_executor::WasmExecutor;
 use sc_service::{error::Error as ServiceError, Configuration, TaskManager};
@@ -28,8 +28,10 @@ use std::sync::Arc;
 use crate::cli::Consensus;
 
 #[cfg(feature = "runtime-benchmarks")]
-type HostFunctions =
-	(sp_io::SubstrateHostFunctions, frame_benchmarking::benchmarking::HostFunctions);
+type HostFunctions = (
+	sp_io::SubstrateHostFunctions,
+	frame_benchmarking::benchmarking::HostFunctions,
+);
 
 #[cfg(not(feature = "runtime-benchmarks"))]
 type HostFunctions = sp_io::SubstrateHostFunctions;
@@ -74,7 +76,9 @@ pub fn new_partial(config: &Configuration) -> Result<Service, ServiceError> {
 	let client = Arc::new(client);
 
 	let telemetry = telemetry.map(|(worker, telemetry)| {
-		task_manager.spawn_handle().spawn("telemetry", None, worker.run());
+		task_manager
+			.spawn_handle()
+			.spawn("telemetry", None, worker.run());
 		telemetry
 	});
 
@@ -171,8 +175,11 @@ pub fn new_full<Network: sc_network::NetworkBackend<Block, <Block as BlockT>::Ha
 		let pool = transaction_pool.clone();
 
 		Box::new(move |deny_unsafe, _| {
-			let deps =
-				crate::rpc::FullDeps { client: client.clone(), pool: pool.clone(), deny_unsafe };
+			let deps = crate::rpc::FullDeps {
+				client: client.clone(),
+				pool: pool.clone(),
+				deny_unsafe,
+			};
 			crate::rpc::create_full(deps).map_err(Into::into)
 		})
 	};
@@ -223,21 +230,24 @@ pub fn new_full<Network: sc_network::NetworkBackend<Block, <Block as BlockT>::Ha
 				None,
 				authorship_future,
 			);
-		},
+		}
 		Consensus::ManualSeal(block_time) => {
 			let (mut sink, commands_stream) = futures::channel::mpsc::channel(1024);
-			task_manager.spawn_handle().spawn("block_authoring", None, async move {
-				loop {
-					futures_timer::Delay::new(std::time::Duration::from_millis(block_time)).await;
-					sink.try_send(sc_consensus_manual_seal::EngineCommand::SealNewBlock {
-						create_empty: true,
-						finalize: true,
-						parent_hash: None,
-						sender: None,
-					})
-					.unwrap();
-				}
-			});
+			task_manager
+				.spawn_handle()
+				.spawn("block_authoring", None, async move {
+					loop {
+						futures_timer::Delay::new(std::time::Duration::from_millis(block_time))
+							.await;
+						sink.try_send(sc_consensus_manual_seal::EngineCommand::SealNewBlock {
+							create_empty: true,
+							finalize: true,
+							parent_hash: None,
+							sender: None,
+						})
+						.unwrap();
+					}
+				});
 
 			let params = sc_consensus_manual_seal::ManualSealParams {
 				block_import: client.clone(),
@@ -258,7 +268,7 @@ pub fn new_full<Network: sc_network::NetworkBackend<Block, <Block as BlockT>::Ha
 				None,
 				authorship_future,
 			);
-		},
+		}
 	}
 
 	network_starter.start_network();

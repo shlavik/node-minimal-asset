@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! A minimal runtime that includes the template [`pallet`](`pallet_minimal_template`).
+//! A minimal runtime that includes the template [`pallet`](`pallet_asset`).
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -45,8 +45,8 @@ use frame::{
 /// The runtime version.
 #[runtime_version]
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: create_runtime_str!("minimal-template-runtime"),
-	impl_name: create_runtime_str!("minimal-template-runtime"),
+	spec_name: create_runtime_str!("node-minimal-asset-runtime"),
+	impl_name: create_runtime_str!("node-minimal-asset-runtime"),
 	authoring_version: 1,
 	spec_version: 0,
 	impl_version: 1,
@@ -58,7 +58,10 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 /// The version information used to identify this runtime when compiled natively.
 #[cfg(feature = "std")]
 pub fn native_version() -> NativeVersion {
-	NativeVersion { runtime_version: VERSION, can_author_with: Default::default() }
+	NativeVersion {
+		runtime_version: VERSION,
+		can_author_with: Default::default(),
+	}
 }
 
 /// The signed extensions that are added to the runtime.
@@ -120,9 +123,9 @@ mod runtime {
 	#[runtime::pallet_index(4)]
 	pub type TransactionPayment = pallet_transaction_payment::Pallet<Runtime>;
 
-	/// A minimal pallet template.
+	/// A minimal pallet asset.
 	#[runtime::pallet_index(5)]
-	pub type Template = pallet_minimal_template::Pallet<Runtime>;
+	pub type Asset = pallet_asset::Pallet<Runtime>;
 }
 
 parameter_types! {
@@ -162,8 +165,10 @@ impl pallet_transaction_payment::Config for Runtime {
 	type LengthToFee = FixedFee<1, <Self as pallet_balances::Config>::Balance>;
 }
 
-// Implements the types required for the template pallet.
-impl pallet_minimal_template::Config for Runtime {}
+// Implements the types required for the asset pallet.
+impl pallet_asset::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+}
 
 type Block = frame::runtime::types_common::BlockOf<Runtime, SignedExtra>;
 type Header = HeaderFor<Runtime>;

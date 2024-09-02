@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use minimal_template_runtime::{BalancesConfig, SudoConfig, WASM_BINARY};
+use node_minimal_asset_runtime::{BalancesConfig, SudoConfig, WASM_BINARY};
 use sc_service::{ChainType, Properties};
 use serde_json::{json, Value};
 use sp_keyring::AccountKeyring;
@@ -31,19 +31,22 @@ fn props() -> Properties {
 }
 
 pub fn development_config() -> Result<ChainSpec, String> {
-	Ok(ChainSpec::builder(WASM_BINARY.expect("Development wasm not available"), Default::default())
-		.with_name("Development")
-		.with_id("dev")
-		.with_chain_type(ChainType::Development)
-		.with_genesis_config_patch(testnet_genesis())
-		.with_properties(props())
-		.build())
+	Ok(ChainSpec::builder(
+		WASM_BINARY.expect("Development wasm not available"),
+		Default::default(),
+	)
+	.with_name("Development")
+	.with_id("dev")
+	.with_chain_type(ChainType::Development)
+	.with_genesis_config_patch(testnet_genesis())
+	.with_properties(props())
+	.build())
 }
 
 /// Configure initial storage state for FRAME pallets.
 fn testnet_genesis() -> Value {
 	use frame::traits::Get;
-	use minimal_template_runtime::interface::{Balance, MinimumBalance};
+	use node_minimal_asset_runtime::interface::{Balance, MinimumBalance};
 	let endowment = <MinimumBalance as Get<Balance>>::get().max(1) * 1000;
 	let balances = AccountKeyring::iter()
 		.map(|a| (a.to_account_id(), endowment))

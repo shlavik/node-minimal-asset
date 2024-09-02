@@ -23,7 +23,7 @@
 #![warn(missing_docs)]
 
 use jsonrpsee::RpcModule;
-use minimal_template_runtime::interface::{AccountId, Nonce, OpaqueBlock};
+use node_minimal_asset_runtime::interface::{AccountId, Nonce, OpaqueBlock};
 use sc_transaction_pool_api::TransactionPool;
 use sp_blockchain::{Error as BlockChainError, HeaderBackend, HeaderMetadata};
 use std::sync::Arc;
@@ -59,7 +59,11 @@ where
 {
 	use substrate_frame_rpc_system::{System, SystemApiServer};
 	let mut module = RpcModule::new(());
-	let FullDeps { client, pool, deny_unsafe } = deps;
+	let FullDeps {
+		client,
+		pool,
+		deny_unsafe,
+	} = deps;
 
 	module.merge(System::new(client.clone(), pool.clone(), deny_unsafe).into_rpc())?;
 
