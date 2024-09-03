@@ -1,7 +1,7 @@
 [package]
 name = "node-minimal-asset-runtime"
 description = "A solochain runtime template built with Substrate, part of Polkadot Sdk. (polkadot v1.15.0)"
-version = "0.1.0"
+version = "0.1.1"
 license = "Unlicense"
 authors.workspace = true
 homepage.workspace = true
@@ -11,7 +11,11 @@ publish = false
 
 [dependencies]
 codec = { workspace = true }
-frame = { features = ["experimental", "runtime"], workspace = true }
+frame = { features = [
+	"experimental",
+	"runtime",
+	"runtime-benchmarks",
+], workspace = true }
 pallet-balances.workspace = true
 pallet-sudo.workspace = true
 pallet-timestamp.workspace = true
@@ -44,4 +48,8 @@ std = [
 	"substrate-wasm-builder",
 
 	"pallet-asset/std",
+]
+runtime-benchmarks = [
+	"frame/runtime-benchmarks",
+	"pallet-asset/runtime-benchmarks",
 ]
